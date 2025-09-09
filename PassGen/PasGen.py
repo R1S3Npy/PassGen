@@ -1,9 +1,10 @@
-import os,time,secrets,csv
+import os,time,random,csv
 
 PassW = []
-Char = [
-    'q','1','A','w','2','B','e','3','C','r','4','D','t','5','E','y','6','F','u','7','G','i','8','H','o','9','I','p','0','J','a','!','K','s','@','L','d','#','M','f','$','N','g','%','O','h','^','P','j','&','Q','k','*','R','l','-','S','z','_','T','x','=','U','c','+','V','v','<','W','b','>','X','n','?','Y','m','Z'
-]
+maiuscole = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+minuscole = "abcdefghijklmnopqrstuvwxyz"
+numeri = "0123456789"
+simboli = "!@#$%^&*()-_=+[]{};:,.<>?/"
 
 if not os.path.exists("PassGen.csv") or os.path.getsize("PassGen.csv") == 0:
     with open("PassGen.csv", "w", newline="") as file:
@@ -17,30 +18,57 @@ with open("PassGen.csv", "r", newline="") as file:
         if row:
             PassW.append(row)
 
+def clear():
+    os.system("cls" if os.name == "nt" else "clear")
+
 
 def Gen():
-    print("====[GENERATOR]=====\n")
-    lenght = int(input("Lunghezza (Consiglio da 8 in su!): "))
-    print("Generazione in corso...\n")
-    time.sleep(2)
+    while True:
+        clear()
+        print("====[GENERATOR]=====\n")
+        lenght = int(input("Lunghezza (Consiglio da 8 in su!): "))
 
-    gen = ""
-    for i in range(lenght):
-        charStr = secrets.choice(Char)
-        gen += charStr
-    print(gen)
+        if lenght < 4:
+            print("Errore: la password deve avere almeno 4 caratteri")
+            input("\n\nHit Enter to go back...")
+            return
 
+        print("Generazione in corso...\n")
+        time.sleep(2)
 
-    service = input("\nNome servizio: ")
-    generate = [gen,service]
+        password = [
+            random.choice(maiuscole),
+            random.choice(minuscole),
+            random.choice(numeri),
+            random.choice(simboli)
+        ]
 
-    PassW.append(generate)
-    
-    with open("PassGen.csv", "a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(generate)
-    
-    input("\n\nHit Enter to go back...")
+        tutti = maiuscole + minuscole + numeri + simboli
+        for i in range(lenght - 4):
+            password.append(random.choice(tutti))
+
+        random.shuffle(password)
+        gen = "".join(password)
+        print(gen)
+
+        scelta = input("\nTi piace? (S = sì, R = rigenera, N = esci)\n> ")
+
+        if scelta.lower() == "s":
+            service = input("\nNome servizio: ")
+            PassW.append([gen, service])
+            print(f"Salvata: {gen} -> {service}\n")
+
+            with open("PassGen.csv", "a", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow([gen, service])
+
+            input("\n\nHit Enter to go back...")
+            break
+
+        elif scelta.lower() == "n":
+            break
+        elif scelta.lower() == "r":
+            continue
 
 def View():
     print("====[VIEW]=====\n")
@@ -63,7 +91,6 @@ while True:
         verify = input("Are you sure? Y/N\n> ")
         if verify == "Y" or verify == "y":
             break
-
 
 
 
